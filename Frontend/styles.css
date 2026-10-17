@@ -1,0 +1,108 @@
+.login-body{
+    background: linear-gradient(to bottom right,rgb(101, 162, 176),  rgb(103, 161, 198), rgb(105, 160, 226), rgb(103, 161, 198), rgb(101, 162, 176));
+}
+
+#login{
+    border: 2px solid black;
+    border-radius: 10px;
+    align-items: center;
+    height: 280;
+    width: 450;
+    margin-top: 200px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #f0f0f0;
+}
+
+#login label{
+    text-align:center;
+    margin:10;
+    font-size:30;
+}
+
+#login input{
+    width: 250;
+    height: 35;
+    font-size: 25;
+    background-color: #f0f0f0;
+    margin-top: 20;
+}
+
+#login .errorMessage{
+    font-size: 20;
+    color: red;
+    padding-left:20;
+}
+
+#login button{
+    width: 180;
+    height: 50;
+    background-color: #4CAF50;
+    border: 3px solid black;
+    align-items: center;
+    font-size: 30;
+    margin-left: 30%;
+}
+
+#login button:hover{
+    background-color: rgb(94, 66, 231);
+}
+
+#homepage-body{
+    margin-top: 200;
+    margin-left: 25%;
+    /*border: 2px solid black;*/
+    width: 800;
+    height: 300;
+}
+
+#homepage-body .payment{
+    height: 200;
+    width: 200;
+    border: 4px solid black;
+    border-radius: 10px;
+    margin-left: 30;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#homepage-body .payment:hover{
+    background-color: lavender;
+}
+
+#homepage-body .payment img{
+    height: 85;
+    width: 85;
+    /*border: 1px solid black;*/
+    margin-left: 28%;
+    margin-top: 15;
+}
+
+#homepage-body .payment p{
+    text-align: center;
+    font-size: 25;
+}
+
+#check{
+    margin-left: 30%;
+}
+
+#check .check-btn{
+    width: 250;
+    height: 40;
+    border: 2px solid black;
+    vertical-align: top;
+    display: inline-block;
+    background: linear-gradient(to bottom, #5479fecb, #587bf9, #5479fecb);
+}
+
+#check .check-btn:hover{
+    background: purple;
+    color: white;
+}
+
+#check .check-btn .check-text{
+    text-align: center;
+    font-size: 25;
+    margin-top: 5;
+}
