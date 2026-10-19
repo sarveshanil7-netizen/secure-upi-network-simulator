@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Balance</title>
+</head>
+<body>
+    <h2>Account Balance</h2>
+    <p id="balance">Loading balance...</p>
+    <a href="homepage.html">Back to Home</a>
+
+    <script>
+        const username = sessionStorage.getItem("loggedInUsername");
+
+        const accounts = {
+            "Sarvesh1": "111100000001",
+            "Srimano2": "111100000002",
+            "kasi3": "111100000003",
+            "Hasiba4": "111100000004"
+        };
+
+        if (!username) {
+            window.location.href = "login.html";
+        } else {
+            const accountNumber = accounts[username];
+            const balanceElement = document.getElementById("balance");
+
+            if (!accountNumber) {
+                balanceElement.textContent = "Account not found.";
+            } else {
+                fetch(
+                    "http://localhost:8080/api/balance?account="
+                    + encodeURIComponent(accountNumber)
+                )
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Unable to fetch balance");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    balanceElement.textContent =
+                        "Available balance: ₹"
+                        + Number(data.balance).toFixed(2);
+                })
+                .catch(error => {
+                    balanceElement.textContent =
+                        "Unable to load balance. Please start the Java backend.";
+                    console.error(error);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

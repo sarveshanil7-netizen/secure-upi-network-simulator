@@ -1,18 +1,56 @@
-<html>
-    <head>
-        <title>Login Page</title>
-        <link rel="stylesheet" href="styles.css">
-        <script src="login.js" defer></script>
-    </head>
-    <body class="login-body">
-        <div id="login">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Secure UPI Payment Simulator</title>
+
+    <!-- Connect CSS file -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Connect JavaScript file -->
+    <script src="login.js" defer></script>
+</head>
+
+<body class="login-body">
+
+    <div id="login">
+
+        <h2 style="text-align: center;">Secure UPI Login</h2>
+
+        <form id="loginForm">
+
+            <!-- Username -->
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="Enter your username">
-            <p class="errorMessage" id="nameValid"></p>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                required
+            >
+
+            <p id="nameValid" class="errorMessage"></p>
+
+            <!-- Password -->
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" style="margin-top:0"><br>
-            <p class="errorMessage" id="passwordValid"></p>
-            <a href="homepage.html"><button type="button" id="login-btn">Login</button></a>
-        </div>
-    </body>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+            >
+
+            <p id="passwordValid" class="errorMessage"></p>
+
+            <!-- Login button -->
+            <button type="submit">Login</button>
+
+        </form>
+
+    </div>
+
+</body>
 </html>

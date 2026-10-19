@@ -1,55 +1,103 @@
-let nameValid = document.getElementById("nameValid");
-let passwordValid = document.getElementById("passwordValid");
-let username = document.getElementById("username");
-let password = document.getElementById("password");
-let loginBtn = document.getElementById("login-btn");
 
-username.addEventListener("keyup", function () {
-    let name = username.value;
-    if (name.length < 3) {
-        nameValid.textContent = "Username must be at least 3 characters long.";
-        username.style.backgroundColor = "red";
-        nameValid.style.color = "red";
-    } else {
-        nameValid.textContent = "Valid Username";
-        nameValid.style.color = "green";
-        username.style.backgroundColor = "#32CD32";
+const USERS = [
+    {
+        username: "Sarvesh1",
+        password: "Computer1@",
+        accountNumber: "111100000001",
+        phone: "9000000001",
+        balance: 5000
+    },
+    {
+        username: "Srimano2",
+        password: "Computer1@",
+        accountNumber: "111100000002",
+        phone: "9000000002",
+        balance: 3500
+    },
+    {
+        username: "Kasi3",
+        password: "Computer1@",
+        accountNumber: "111100000003",
+        phone: "9000000003",
+        balance: 4200
+    },
+    {
+        username: "Hasiba4",
+        password: "Computer1@",
+        accountNumber: "111100000004",
+        phone: "9000000004",
+        balance: 6000
     }
-});
+];
 
-password.addEventListener("keyup", function () {
-    let pass = password.value;
-    if (pass.length < 8) {
-        passwordValid.textContent = "Password must be at least 8 characters long.";
-        password.style.backgroundColor = "red";
-        passwordValid.style.color = "red";
-    }
-    else if (!/[A-Z]/.test(pass)) {
-        passwordValid.textContent = "Password must contain at least one uppercase letter.";
-        password.style.backgroundColor = "red";
-        passwordValid.style.color = "red";
-    }
-    else if (!/[0-9]/.test(pass)) {
-        passwordValid.textContent = "Password must contain at least one number.";
-        password.style.backgroundColor = "red";
-        passwordValid.style.color = "red";
-    }
-    else if (!/[!@#$%^&*,.?]/.test(pass)) {
-        passwordValid.textContent = "Password must contain at least one special character.";
-        password.style.backgroundColor = "red";
-        passwordValid.style.color = "red";
-    }
-    else{
-        passwordValid.textContent = "Valid Password";
-        passwordValid.style.color = "green";
-        password.style.backgroundColor = "#32CD32";
-    }
-});
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("loginForm");
 
-loginBtn.addEventListener("click", function (event) {
-    if(username.style.backgroundColor === "rgb(50, 205, 50)" && password.style.backgroundColor === "rgb(50, 205, 50)") {
-        window.location.href = "homepage.html";
-    } else {
+    form.addEventListener("submit", event => {
         event.preventDefault();
-    }
+
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        const user = USERS.find(
+            item =>
+                item.username === username &&
+                item.password === password
+        );
+
+        if (!user) {
+            document.getElementById("nameValid").textContent =
+                "Invalid username or password.";
+            document.getElementById("passwordValid").textContent = "";
+            return;
+        }
+
+        let state;
+
+        try {
+            state = JSON.parse(localStorage.getItem("demoPaymentState"));
+        } catch (error) {
+            state = null;
+        }
+
+        if (
+            !state ||
+            !Array.isArray(state.accounts) ||
+            !Array.isArray(state.transactions)
+        ) {
+            state = {
+                accounts: USERS.map(item => ({
+                    ...item
+                })),
+                transactions: []
+            };
+        } else {
+            // Keep existing balances and transactions.
+            USERS.forEach(userData => {
+                const account = state.accounts.find(
+                    item => item.accountNumber === userData.accountNumber
+                );
+
+                if (!account) {
+                    state.accounts.push({ ...userData });
+                } else {
+                    account.username = userData.username;
+                    account.phone = userData.phone;
+                    account.password = userData.password;
+                }
+            });
+        }
+
+        localStorage.setItem("demoPaymentState", JSON.stringify(state));
+
+        sessionStorage.setItem(
+            "loggedInUsername",
+            user.username
+        );
+
+        document.getElementById("nameValid").textContent = "";
+        document.getElementById("passwordValid").textContent = "";
+
+        window.location.href = "homepage.html";
+    });
 });

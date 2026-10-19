@@ -1,31 +1,66 @@
-<html>
-    <head>
-        <title>Homepage</title>
-        <link rel="stylesheet" href="styles.css">
-        <script src="homepage.js" defer></script>
-    </head>
-    <body>
-        <div id="homepage-body">
-            <div id="scan-payment" class="payment">
-                <img src="scan.png" alt="Scan Image">
-                <p>Pay with Scan</p>
-            </div>
-            <div id="scan-payment" class="payment">
-                <img src="debit-card.png" alt="Debit Card Image">
-                <p>Pay with Account Number</p>
-            </div>
-            <div id="scan-payment" class="payment">
-                <img src="phone.jpg" alt="Scan Image">
-                <p>Pay with Phone Number</p>
-            </div>
-        </div>
-        <div id="check">
-            <div class="check-btn">
-                <p class="check-text">Check Balance</p>
-            </div>
-            <div class="check-btn" style="margin-left: 70">
-                <p class="check-text">Transaction History</p>
-            </div>
-        </div>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Secure UPI Payment Simulator</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <h1 style="text-align: center;">
+        Secure UPI Payment Simulator
+    </h1>
+
+    <p id="welcome" style="text-align: center;"></p>
+
+    <!-- Payment options -->
+    <div id="homepage-body">
+
+        <a href="scan-payment.html" class="payment">
+            <img src="scan.png" alt="Scan QR Code">
+            <p>Pay with Scan</p>
+        </a>
+
+        <a href="account-payment.html" class="payment">
+            <img src="debit-card.png" alt="Account Number">
+            <p>Pay with Account Number</p>
+        </a>
+
+        <a href="phone-payment.html" class="payment">
+            <img src="phone.jpg" alt="Phone Number">
+            <p>Pay with Phone Number</p>
+        </a>
+
+    </div>
+
+    <!-- Balance and transaction options -->
+    <div id="check">
+
+        <a href="balance.html" class="check-btn">
+            <p class="check-text">Check Balance</p>
+        </a>
+
+        <a href="history.html" class="check-btn">
+            <p class="check-text">Transaction History</p>
+        </a>
+
+    </div>
+
+    <!-- Check login session -->
+    <script>
+        const username = sessionStorage.getItem("loggedInUsername");
+
+        if (!username) {
+            window.location.href = "login.html";
+        } else {
+            document.getElementById("welcome").textContent =
+                "Welcome, " + username;
+        }
+    </script>
+
+</body>
 </html>
