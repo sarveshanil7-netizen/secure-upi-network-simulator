@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Secure UPI Payment Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .success-box {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+        .success-box strong {
+            font-size: 18px;
+            display: block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body class="login-body">
+
+    <div id="login" style="margin: 40px auto;">
+        <h2 style="text-align: center;">Register New UPI Account</h2>
+        <p style="text-align: center; color: #555; font-size: 14px; margin-top: -10px;">
+            Connected with MySQL Database
+        </p>
+
+        <form id="registerForm">
+            <!-- Username -->
+            <label for="regUsername">Username:</label>
+            <input type="text" id="regUsername" required placeholder="Choose a unique username">
+
+            <!-- Login Password -->
+            <label for="regPassword">Login Password:</label>
+            <input type="password" id="regPassword" required placeholder="Enter login password">
+
+            <!-- Payment Password -->
+            <label for="regPaymentPassword">Payment PIN / Password:</label>
+            <input type="password" id="regPaymentPassword" required placeholder="For authorizing transactions">
+
+            <!-- Phone Number -->
+            <label for="regPhone">Mobile Phone (10 digits):</label>
+            <input type="text" id="regPhone" maxlength="10" required placeholder="e.g. 9876543210">
+
+            <!-- Initial Deposit -->
+            <label for="regBalance">Initial Account Balance (₹):</label>
+            <input type="number" id="regBalance" min="100" step="0.01" value="5000.00" required>
+
+            <p id="regError" class="errorMessage"></p>
+
+            <div id="regSuccess" class="success-box">
+                <span id="successMsg">Registration Successful!</span>
+                <span style="font-size: 13px; display: block; margin-top: 4px;">Your Assigned 12-Digit Account Number:</span>
+                <strong id="assignedAcc">111100000005</strong>
+                <a href="login.html" style="display: inline-block; margin-top: 10px; font-weight: bold; color: #1b5e20;">
+                    &rarr; Proceed to Login
+                </a>
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" id="regSubmitBtn">Create Account</button>
+
+            <p style="text-align: center; margin-top: 15px; font-size: 15px;">
+                Already have an account? <a href="login.html" style="color: #176bba; font-weight: bold;">Login here</a>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8080/api";
+
+        document.getElementById("registerForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById("regUsername").value.trim();
+            const password = document.getElementById("regPassword").value;
+            const paymentPassword = document.getElementById("regPaymentPassword").value;
+            const phone = document.getElementById("regPhone").value.trim();
+            const initialBalance = document.getElementById("regBalance").value.trim();
+
+            const errElem = document.getElementById("regError");
+            const successBox = document.getElementById("regSuccess");
+            const btn = document.getElementById("regSubmitBtn");
+
+            errElem.textContent = "";
+            successBox.style.display = "none";
+
+            if (!/^\d{10}$/.test(phone)) {
+                errElem.textContent = "Please enter a valid 10-digit phone number.";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "Registering in Database...";
+
+            try {
+                const params = new URLSearchParams({
+                    username: username,
+                    password: password,
+                    paymentPassword: paymentPassword,
+                    phone: phone,
+                    initialBalance: initialBalance
+                });
+
+                const response = await fetch(`${API_URL}/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: params.toString()
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    document.getElementById("assignedAcc").textContent = data.accountNumber;
+                    successBox.style.display = "block";
+                    btn.style.display = "none";
+                } else {
+                    errElem.textContent = data.message || "Registration failed. Try again.";
+                    btn.disabled = false;
+                    btn.textContent = "Create Account";
+                }
+            } catch (err) {
+                console.error(err);
+                errElem.textContent = "Cannot connect to server. Ensure UPIApplication is running on port 8080.";
+                btn.disabled = false;
+                btn.textContent = "Create Account";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction History</title>
+    <title>My Transaction History</title>
 
     <link rel="stylesheet" href="styles.css">
 
@@ -29,7 +28,8 @@
         }
 
         .history-table th {
-            background-color: #f2f2f2;
+            background-color: #173b67;
+            color: white;
         }
 
         .history-table td {
@@ -39,9 +39,14 @@
 </head>
 
 <body>
-    <div class="payment-form">
+    <div class="payment-form" style="width: 750px; max-width: 95%;">
 
-        <h2>Transaction History</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <h2 style="margin: 0;">My Transactions</h2>
+            <a href="global-history.html" style="background: #176b50; color: white; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: bold;">
+                View Global SQL Ledger &rarr;
+            </a>
+        </div>
 
         <p id="historyMessage">Loading transactions...</p>
 
@@ -61,8 +66,8 @@
             </table>
         </div>
 
-        <p>
-            <a href="homepage.html">Back to Home</a>
+        <p style="text-align: center; margin-top: 25px;">
+            <a href="homepage.html">&larr; Back to Home</a>
         </p>
 
     </div>
@@ -74,93 +79,71 @@
             const list = document.getElementById("transactionList");
 
             const username = sessionStorage.getItem("loggedInUsername");
+            let userAccount = sessionStorage.getItem("loggedInAccount");
 
             if (!username) {
                 window.location.href = "login.html";
                 return;
             }
 
-            const accounts = {
+            const fallbackAccounts = {
                 "Sarvesh1": "111100000001",
                 "Srimano2": "111100000002",
                 "Kasi3": "111100000003",
                 "Hasiba4": "111100000004"
             };
 
-            const userAccount = accounts[username];
+            if (!userAccount) {
+                userAccount = fallbackAccounts[username];
+            }
 
             if (!userAccount) {
-                message.textContent =
-                    "Unknown user. Please log in again.";
+                message.textContent = "Unknown user account. Please log in again.";
                 table.hidden = true;
                 return;
             }
 
             try {
-                const response = await fetch(
-                    "http://localhost:8080/api/history"
-                );
+                // Try fetching from the global SQL history endpoint first
+                let transactions = [];
+                const resGlobal = await fetch("http://localhost:8080/api/global-history");
 
-                if (!response.ok) {
-                    throw new Error("Failed to load history");
+                if (resGlobal.ok) {
+                    const data = await resGlobal.json();
+                    transactions = data.map(item => 
+                        `${item.transactionId} | From: ${item.sender} | To: ${item.receiver} | Amount: Rs.${item.amount} | ${item.status}`
+                    );
+                } else {
+                    const response = await fetch("http://localhost:8080/api/history");
+                    if (response.ok) transactions = await response.json();
                 }
-
-                const transactions = await response.json();
 
                 list.replaceChildren();
 
-                // Filter transactions for the logged-in user.
+                // Filter transactions for the logged-in user
                 const userTransactions = transactions.filter(record => {
-                    const parts = record.split("|").map(
-                        part => part.trim()
-                    );
-
-                    const sender = (parts[1] || "")
-                        .replace("From:", "").trim();
-
-                    const receiver = (parts[2] || "")
-                        .replace("To:", "").trim();
-
-                    return sender === userAccount ||
-                           receiver === userAccount;
+                    const parts = record.split("|").map(part => part.trim());
+                    const sender = (parts[1] || "").replace("From:", "").trim();
+                    const receiver = (parts[2] || "").replace("To:", "").trim();
+                    return sender === userAccount || receiver === userAccount;
                 });
 
                 if (userTransactions.length === 0) {
-                    message.textContent =
-                        "No transactions found for your account.";
+                    message.textContent = "No transactions found for your account (" + userAccount + ").";
                     table.hidden = true;
                     return;
                 }
 
-                // Show the newest transactions first.
-                userTransactions.slice().reverse().forEach(record => {
-                    const parts = record.split("|").map(
-                        part => part.trim()
-                    );
-
+                userTransactions.forEach(record => {
+                    const parts = record.split("|").map(part => part.trim());
                     const transactionId = parts[0] || "-";
-
-                    const sender = (parts[1] || "")
-                        .replace("From:", "").trim();
-
-                    const receiver = (parts[2] || "")
-                        .replace("To:", "").trim();
-
-                    const amount = (parts[3] || "")
-                        .replace("Amount:", "")
-                        .replace("Rs.", "").trim();
-
+                    const sender = (parts[1] || "").replace("From:", "").trim();
+                    const receiver = (parts[2] || "").replace("To:", "").trim();
+                    const amount = (parts[3] || "").replace("Amount:", "").replace("Rs.", "").trim();
                     const status = parts[4] || "-";
 
                     const row = document.createElement("tr");
-
-                    [
-                        transactionId,
-                        sender,
-                        receiver,
-                        "₹" + amount,
-                        status
-                    ].forEach(value => {
+                    [transactionId, sender, receiver, "₹" + amount, status].forEach(value => {
                         const cell = document.createElement("td");
                         cell.textContent = value;
                         row.appendChild(cell);
@@ -174,17 +157,12 @@
 
             } catch (error) {
                 console.error("Transaction history error:", error);
-
                 table.hidden = true;
-                message.textContent =
-                    "Unable to load history. Please check that the Java server is running.";
+                message.textContent = "Unable to load history. Please check that the Java server is running.";
             }
         }
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            loadTransactionHistory
-        );
+        document.addEventListener("DOMContentLoaded", loadTransactionHistory);
     </script>
 
 </body>

@@ -7,6 +7,38 @@
     <title>Secure UPI Payment Simulator</title>
 
     <link rel="stylesheet" href="styles.css">
+    <style>
+        #check-three {
+            width: 90%;
+            max-width: 950px;
+            margin: 25px auto 40px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .global-btn {
+            background: linear-gradient(to right, #176b50, #28a745) !important;
+        }
+
+        .logout-link {
+            display: inline-block;
+            margin-top: 5px;
+            color: #d71920;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            #check-three {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -15,15 +47,13 @@
         Secure UPI Payment Simulator
     </h1>
 
-    <p id="welcome" style="text-align: center;"></p>
+    <div style="text-align: center;">
+        <p id="welcome" style="margin-bottom: 2px;"></p>
+        <span onclick="logout()" class="logout-link">Logout</span>
+    </div>
 
     <!-- Payment options -->
     <div id="homepage-body">
-
-        <a href="scan-payment.html" class="payment">
-            <img src="scan.png" alt="Scan QR Code">
-            <p>Pay with Scan</p>
-        </a>
 
         <a href="account-payment.html" class="payment">
             <img src="debit-card.png" alt="Account Number">
@@ -35,17 +65,26 @@
             <p>Pay with Phone Number</p>
         </a>
 
+        <a href="global-history.html" class="payment">
+            <img src="scan.png" alt="SQL Ledger">
+            <p>Global SQL Ledger</p>
+        </a>
+
     </div>
 
-    <!-- Balance and transaction options -->
-    <div id="check">
+    <!-- Balance, User History and Global SQL Ledger options -->
+    <div id="check-three">
 
         <a href="balance.html" class="check-btn">
             <p class="check-text">Check Balance</p>
         </a>
 
         <a href="history.html" class="check-btn">
-            <p class="check-text">Transaction History</p>
+            <p class="check-text">My Transactions</p>
+        </a>
+
+        <a href="global-history.html" class="check-btn global-btn">
+            <p class="check-text">Global SQL Table</p>
         </a>
 
     </div>
@@ -57,8 +96,15 @@
         if (!username) {
             window.location.href = "login.html";
         } else {
-            document.getElementById("welcome").textContent =
-                "Welcome, " + username;
+            const acc = sessionStorage.getItem("loggedInAccount");
+            document.getElementById("welcome").innerHTML =
+                "Welcome, <strong>" + username + "</strong>" +
+                (acc ? " (Acc: " + acc + ")" : "");
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = "login.html";
         }
     </script>
 

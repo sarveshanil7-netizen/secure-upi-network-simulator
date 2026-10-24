@@ -18,6 +18,9 @@
     <div id="login">
 
         <h2 style="text-align: center;">Secure UPI Login</h2>
+        <p style="text-align: center; color: #555; font-size: 13px; margin-top: -10px;">
+            Database Authentication Enabled
+        </p>
 
         <form id="loginForm">
 
@@ -27,7 +30,7 @@
                 type="text"
                 id="username"
                 name="username"
-                placeholder="Enter your username"
+                placeholder="Enter your registered username"
                 required
             >
 
@@ -46,7 +49,15 @@
             <p id="passwordValid" class="errorMessage"></p>
 
             <!-- Login button -->
-            <button type="submit">Login</button>
+            <button type="submit" id="loginBtn">Login</button>
+
+            <!-- Register link -->
+            <p style="text-align: center; margin-top: 18px; font-size: 15px;">
+                New user? 
+                <a href="register.html" style="color: #176bba; font-weight: bold; text-decoration: underline;">
+                    Register here &rarr;
+                </a>
+            </p>
 
         </form>
 
