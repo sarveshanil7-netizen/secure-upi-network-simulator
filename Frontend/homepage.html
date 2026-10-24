@@ -8,19 +8,6 @@
 
     <link rel="stylesheet" href="styles.css">
     <style>
-        #check-three {
-            width: 90%;
-            max-width: 950px;
-            margin: 25px auto 40px;
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 20px;
-        }
-
-        .global-btn {
-            background: linear-gradient(to right, #176b50, #28a745) !important;
-        }
-
         .logout-link {
             display: inline-block;
             margin-top: 5px;
@@ -31,12 +18,6 @@
         }
         .logout-link:hover {
             text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            #check-three {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
@@ -55,6 +36,11 @@
     <!-- Payment options -->
     <div id="homepage-body">
 
+        <a href="scan-payment.html" class="payment">
+            <img src="scan.png" alt="Scan QR Code">
+            <p>Pay with Scan</p>
+        </a>
+
         <a href="account-payment.html" class="payment">
             <img src="debit-card.png" alt="Account Number">
             <p>Pay with Account Number</p>
@@ -65,26 +51,17 @@
             <p>Pay with Phone Number</p>
         </a>
 
-        <a href="global-history.html" class="payment">
-            <img src="scan.png" alt="SQL Ledger">
-            <p>Global SQL Ledger</p>
-        </a>
-
     </div>
 
-    <!-- Balance, User History and Global SQL Ledger options -->
-    <div id="check-three">
+    <!-- Balance and transaction options -->
+    <div id="check">
 
         <a href="balance.html" class="check-btn">
             <p class="check-text">Check Balance</p>
         </a>
 
         <a href="history.html" class="check-btn">
-            <p class="check-text">My Transactions</p>
-        </a>
-
-        <a href="global-history.html" class="check-btn global-btn">
-            <p class="check-text">Global SQL Table</p>
+            <p class="check-text">Transaction History</p>
         </a>
 
     </div>
