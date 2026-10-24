@@ -13,7 +13,7 @@ public class DBConnection {
     private static final String PORT = System.getProperty("db.port", "3306");
     private static final String DB_NAME = System.getProperty("db.name", "secure_upi_db");
     private static final String USER = System.getProperty("db.user", System.getenv().getOrDefault("DB_USER", "root"));
-    private static final String PASSWORD = System.getProperty("db.password", System.getenv().getOrDefault("DB_PASSWORD", "5785_Mohi"));
+    private static final String PASSWORD = System.getProperty("db.password", System.getenv().getOrDefault("DB_PASSWORD", "YOUR_DB_PASSWORD"));
 
     private static final String BASE_URL = "jdbc:mysql://" + HOST + ":" + PORT + "/?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
     private static final String DB_URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DB_NAME + "?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
