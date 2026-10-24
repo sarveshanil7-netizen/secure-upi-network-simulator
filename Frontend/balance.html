@@ -2,49 +2,52 @@
 <html>
 <head>
     <title>Check Balance</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <h2>Account Balance</h2>
-    <p id="balance">Loading balance...</p>
-    <a href="homepage.html">Back to Home</a>
+<body class="login-body">
+    <div id="balance">
+        <h2>Account Balance</h2>
+        <p id="balanceAmount">Loading balance...</p>
+        <p id="accountInfo" style="font-size: 14px; color: #64748b; font-family: monospace;"></p>
+        <a href="homepage.html" style="display: inline-block; margin-top: 15px; font-weight: bold; color: #176bba;">&larr; Back to Home</a>
+    </div>
 
     <script>
         const username = sessionStorage.getItem("loggedInUsername");
+        let accountNumber = sessionStorage.getItem("loggedInAccount");
 
-        const accounts = {
+        const fallbackAccounts = {
             "Sarvesh1": "111100000001",
             "Srimano2": "111100000002",
-            "kasi3": "111100000003",
+            "Kasi3": "111100000003",
             "Hasiba4": "111100000004"
         };
+
+        if (!accountNumber && username) {
+            accountNumber = fallbackAccounts[username];
+        }
 
         if (!username) {
             window.location.href = "login.html";
         } else {
-            const accountNumber = accounts[username];
-            const balanceElement = document.getElementById("balance");
+            const balanceElement = document.getElementById("balanceAmount");
+            const accInfo = document.getElementById("accountInfo");
 
             if (!accountNumber) {
                 balanceElement.textContent = "Account not found.";
             } else {
-                fetch(
-                    "http://localhost:8080/api/balance?account="
-                    + encodeURIComponent(accountNumber)
-                )
+                accInfo.textContent = "Account Number: " + accountNumber;
+
+                fetch("http://localhost:8080/api/balance?account=" + encodeURIComponent(accountNumber))
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Unable to fetch balance");
-                    }
+                    if (!response.ok) throw new Error("Unable to fetch balance");
                     return response.json();
                 })
                 .then(data => {
-                    balanceElement.textContent =
-                        "Available balance: ₹"
-                        + Number(data.balance).toFixed(2);
+                    balanceElement.textContent = "Available balance: ₹" + Number(data.balance).toFixed(2);
                 })
                 .catch(error => {
-                    balanceElement.textContent =
-                        "Unable to load balance. Please start the Java backend.";
+                    balanceElement.textContent = "Unable to load balance. Please start Java backend.";
                     console.error(error);
                 });
             }

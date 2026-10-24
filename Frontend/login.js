@@ -1,103 +1,62 @@
-
-const USERS = [
-    {
-        username: "Sarvesh1",
-        password: "Computer1@",
-        accountNumber: "111100000001",
-        phone: "9000000001",
-        balance: 5000
-    },
-    {
-        username: "Srimano2",
-        password: "Computer1@",
-        accountNumber: "111100000002",
-        phone: "9000000002",
-        balance: 3500
-    },
-    {
-        username: "Kasi3",
-        password: "Computer1@",
-        accountNumber: "111100000003",
-        phone: "9000000003",
-        balance: 4200
-    },
-    {
-        username: "Hasiba4",
-        password: "Computer1@",
-        accountNumber: "111100000004",
-        phone: "9000000004",
-        balance: 6000
-    }
-];
+const API_URL = "http://localhost:8080/api";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");
+    const nameValid = document.getElementById("nameValid");
+    const passwordValid = document.getElementById("passwordValid");
+    const loginBtn = document.getElementById("loginBtn");
 
-    form.addEventListener("submit", event => {
+    form.addEventListener("submit", async event => {
         event.preventDefault();
 
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value;
 
-        const user = USERS.find(
-            item =>
-                item.username === username &&
-                item.password === password
-        );
+        nameValid.textContent = "";
+        passwordValid.textContent = "";
 
-        if (!user) {
-            document.getElementById("nameValid").textContent =
-                "Invalid username or password.";
-            document.getElementById("passwordValid").textContent = "";
+        if (!username || !password) {
+            nameValid.textContent = "Please fill in all fields.";
             return;
         }
 
-        let state;
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Verifying with Database...";
 
         try {
-            state = JSON.parse(localStorage.getItem("demoPaymentState"));
-        } catch (error) {
-            state = null;
-        }
-
-        if (
-            !state ||
-            !Array.isArray(state.accounts) ||
-            !Array.isArray(state.transactions)
-        ) {
-            state = {
-                accounts: USERS.map(item => ({
-                    ...item
-                })),
-                transactions: []
-            };
-        } else {
-            // Keep existing balances and transactions.
-            USERS.forEach(userData => {
-                const account = state.accounts.find(
-                    item => item.accountNumber === userData.accountNumber
-                );
-
-                if (!account) {
-                    state.accounts.push({ ...userData });
-                } else {
-                    account.username = userData.username;
-                    account.phone = userData.phone;
-                    account.password = userData.password;
-                }
+            const params = new URLSearchParams({
+                username: username,
+                password: password
             });
+
+            // Requirement 2: Check database and allow ONLY registered users
+            const response = await fetch(`${API_URL}/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: params.toString()
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                // Store verified session details from Database
+                sessionStorage.setItem("loggedInUsername", result.username);
+                sessionStorage.setItem("loggedInAccount", result.accountNumber);
+                sessionStorage.setItem("userPhone", result.phone || "");
+
+                window.location.href = "homepage.html";
+            } else {
+                nameValid.textContent = result.message || "Invalid credentials. User not registered in database.";
+                loginBtn.disabled = false;
+                loginBtn.textContent = "Login";
+            }
+        } catch (error) {
+            console.error("Login connection error:", error);
+            nameValid.textContent = "Cannot connect to server. Ensure UPIApplication backend is running on port 8080.";
+            loginBtn.disabled = false;
+            loginBtn.textContent = "Login";
         }
-
-        localStorage.setItem("demoPaymentState", JSON.stringify(state));
-
-        sessionStorage.setItem(
-            "loggedInUsername",
-            user.username
-        );
-
-        document.getElementById("nameValid").textContent = "";
-        document.getElementById("passwordValid").textContent = "";
-
-        window.location.href = "homepage.html";
     });
 });

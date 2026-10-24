@@ -7,6 +7,19 @@
     <title>Secure UPI Payment Simulator</title>
 
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .logout-link {
+            display: inline-block;
+            margin-top: 5px;
+            color: #d71920;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
@@ -15,7 +28,10 @@
         Secure UPI Payment Simulator
     </h1>
 
-    <p id="welcome" style="text-align: center;"></p>
+    <div style="text-align: center;">
+        <p id="welcome" style="margin-bottom: 2px;"></p>
+        <span onclick="logout()" class="logout-link">Logout</span>
+    </div>
 
     <!-- Payment options -->
     <div id="homepage-body">
@@ -57,8 +73,15 @@
         if (!username) {
             window.location.href = "login.html";
         } else {
-            document.getElementById("welcome").textContent =
-                "Welcome, " + username;
+            const acc = sessionStorage.getItem("loggedInAccount");
+            document.getElementById("welcome").innerHTML =
+                "Welcome, <strong>" + username + "</strong>" +
+                (acc ? " (Acc: " + acc + ")" : "");
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = "login.html";
         }
     </script>
 

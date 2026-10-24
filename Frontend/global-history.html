@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Transaction Ledger - MySQL SQL Table</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .ledger-container {
+            width: 95%;
+            max-width: 1100px;
+            margin: 40px auto 70px;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid #d2dce8;
+            padding: 25px;
+        }
+
+        .ledger-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 2px solid #eef2f7;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .badge-sql {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 1px solid #c8e6c9;
+        }
+
+        .filter-bar {
+            width: 100%;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-bar input {
+            flex: 1;
+            padding: 11px 15px;
+            font-size: 15px;
+            border: 1px solid #b9c5d3;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .filter-bar input:focus {
+            border: 2px solid #2878c8;
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-success {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .status-failed {
+            background-color: #ffebee;
+            color: #b71c1c;
+        }
+
+        .amount-bold {
+            font-weight: bold;
+            color: #176b50;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            color: #176bba;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center; margin-top: 30px;">Secure UPI Network Simulator</h1>
+    <p style="text-align: center; color: #52677e; margin-top: -5px;">
+        Global Transaction Audit Ledger (Direct from MySQL <code>transactions</code> Table)
+    </p>
+
+    <div class="ledger-container">
+        <div class="ledger-header">
+            <div>
+                <h2 style="margin: 0; font-size: 24px; color: #173b67;">Global Transactions Table</h2>
+                <p style="margin: 4px 0 0; color: #64748b; font-size: 13px;">
+                    Records all network transactions with Sender Account, Receiver Account, and Amount
+                </p>
+            </div>
+            <div>
+                <span id="recordCount" class="badge-sql">Connecting to SQL Table...</span>
+            </div>
+        </div>
+
+        <!-- Filter / Search input -->
+        <div class="filter-bar">
+            <input type="text" id="searchInput" placeholder="Search by Sender Acc No, Receiver Acc No, or Transaction ID..." onkeyup="filterTransactions()">
+            <button onclick="loadGlobalHistory()" style="padding: 11px 18px; background-color: #176b50; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                Refresh
+            </button>
+        </div>
+
+        <p id="tableMessage" style="text-align: center; color: #555;">Loading transactions from MySQL database...</p>
+
+        <!-- Table displaying global transactions -->
+        <div style="overflow-x: auto;">
+            <table id="globalTable" style="display: none; width: 100%; margin: 0;">
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Sender Acc. No</th>
+                        <th>Receiver Acc. No</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody id="globalTableBody">
+                    <!-- Populated dynamically via SQL API -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="nav-links">
+            <a href="homepage.html">&larr; Back to Home</a>
+            <span>|</span>
+            <a href="history.html">View My Personal History</a>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8080/api";
+        let allTransactions = [];
+
+        async function loadGlobalHistory() {
+            const msg = document.getElementById("tableMessage");
+            const table = document.getElementById("globalTable");
+            const countBadge = document.getElementById("recordCount");
+
+            msg.style.display = "block";
+            msg.textContent = "Querying MySQL 'transactions' table...";
+            table.style.display = "none";
+
+            try {
+                // Requirement 3: Fetch all transactions from the SQL table
+                const response = await fetch(`${API_URL}/global-history`);
+                if (!response.ok) {
+                    throw new Error(`Server returned HTTP ${response.status}`);
+                }
+
+                allTransactions = await response.json();
+
+                if (!Array.isArray(allTransactions) || allTransactions.length === 0) {
+                    msg.textContent = "No transactions recorded in the SQL table yet.";
+                    countBadge.textContent = "0 Records in Database";
+                    return;
+                }
+
+                countBadge.textContent = `${allTransactions.length} SQL Records`;
+                msg.style.display = "none";
+                table.style.display = "table";
+                renderTable(allTransactions);
+
+            } catch (err) {
+                console.error("Error loading global SQL table:", err);
+                msg.textContent = "Unable to connect to the backend server. Please verify UPIApplication is running.";
+                countBadge.textContent = "Database Offline";
+            }
+        }
+
+        function renderTable(list) {
+            const tbody = document.getElementById("globalTableBody");
+            tbody.innerHTML = "";
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #777; padding: 20px;">No matching transactions found.</td></tr>`;
+                return;
+            }
+
+            list.forEach(item => {
+                const tr = document.createElement("tr");
+
+                const isSuccess = (item.status || "SUCCESS").toUpperCase() === "SUCCESS";
+                const statusHtml = `<span class="status-pill ${isSuccess ? 'status-success' : 'status-failed'}">${item.status || 'SUCCESS'}</span>`;
+
+                tr.innerHTML = `
+                    <td style="font-family: monospace; font-size: 13px; font-weight: bold; color: #173b67;">${escapeHtml(item.transactionId)}</td>
+                    <td style="font-family: monospace; font-size: 14px;">${escapeHtml(item.sender)}</td>
+                    <td style="font-family: monospace; font-size: 14px;">${escapeHtml(item.receiver)}</td>
+                    <td class="amount-bold">₹${Number(item.amount).toFixed(2)}</td>
+                    <td>${statusHtml}</td>
+                    <td style="font-size: 13px; color: #555;">${escapeHtml(item.timestamp || "Recently")}</td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTransactions() {
+            const query = document.getElementById("searchInput").value.toLowerCase().trim();
+            if (!query) {
+                renderTable(allTransactions);
+                return;
+            }
+
+            const filtered = allTransactions.filter(tx => 
+                (tx.sender && tx.sender.toLowerCase().includes(query)) ||
+                (tx.receiver && tx.receiver.toLowerCase().includes(query)) ||
+                (tx.transactionId && tx.transactionId.toLowerCase().includes(query))
+            );
+
+            renderTable(filtered);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        window.addEventListener("DOMContentLoaded", loadGlobalHistory);
+    </script>
+</body>
+</html>
