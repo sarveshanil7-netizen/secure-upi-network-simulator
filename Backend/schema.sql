@@ -40,4 +40,4 @@ INSERT IGNORE INTO users (username, password, payment_password, account_number, 
 -- Initial seed sample transactions for global history demonstration
 INSERT IGNORE INTO transactions (transaction_id, sender_account, receiver_account, amount, status) VALUES
 ('TXN-SAMPLE000001', '111100000001', '111100000002', 500.00, 'SUCCESS'),
-('TXN-SAMPLE000002', '111100000003', '111100000004', 1200.00, 'SUCCESS');
+
