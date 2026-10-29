@@ -21,3 +21,11 @@ This project is developed for educational and demonstration purposes only. It is
 
 ## Team Project
 Developed collaboratively as an academic group project.
+
+To Run this application:
+javac -cp ".;lib/*" *.java 
+java -cp ".;lib/*" UPIApplication 
+
+After this run 
+
+Login.html
