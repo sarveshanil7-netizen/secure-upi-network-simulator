@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Secure UPI | QR Scanner</title>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #edf4ff, #f7f9fc);
+            color: #193b68;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 6%;
+            background: #fff;
+            border-bottom: 1px solid #e1e8f2;
+            box-shadow: 0 3px 15px rgba(24, 59, 104, 0.04);
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: 750;
+            color: #174a85;
+        }
+
+        .back-link {
+            color: #276ac3;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .page {
+            max-width: 850px;
+            margin: 35px auto;
+            padding: 0 22px 40px;
+        }
+
+        .notice {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 18px 20px;
+            margin-bottom: 28px;
+            background: #fff8e8;
+            border: 1px solid #f2d28b;
+            border-left: 5px solid #e6a323;
+            border-radius: 12px;
+            color: #805514;
+        }
+
+        .notice-icon {
+            font-size: 23px;
+            flex-shrink: 0;
+        }
+
+        .notice strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+            letter-spacing: 0.4px;
+        }
+
+        .notice p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .heading h1 {
+            margin: 0 0 10px;
+            font-size: clamp(30px, 4vw, 40px);
+            letter-spacing: -0.7px;
+        }
+
+        .heading p {
+            margin: 0;
+            color: #70819a;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .card {
+            padding: 30px;
+            background: #fff;
+            border: 1px solid #e2eaf5;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px rgba(32, 68, 117, 0.08);
+        }
+
+        .card h2 {
+            margin: 0 0 8px;
+            font-size: 23px;
+            color: #1c416f;
+        }
+
+        .subtext {
+            margin: 0 0 22px;
+            color: #75849a;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .scanner-box {
+            width: 100%;
+            min-height: 330px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #f5f8ff;
+            border: 2px dashed #bdcfe8;
+            border-radius: 16px;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            border: none !important;
+        }
+
+        #reader video {
+            max-width: 100%;
+            border-radius: 12px;
+        }
+
+        #reader img {
+            max-width: 100%;
+        }
+
+        #scanPlaceholder {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .scan-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 20px;
+            border-radius: 24px;
+            background: #e4efff;
+            color: #3477cc;
+            font-size: 52px;
+        }
+
+        .scanner-hint {
+            color: #71829a;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            margin-top: 16px;
+            padding: 15px;
+            border-radius: 11px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .primary-btn {
+            border: none;
+            background: linear-gradient(110deg, #2469c4, #438de7);
+            color: #fff;
+            box-shadow: 0 7px 18px rgba(39, 105, 196, 0.18);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 23px rgba(39, 105, 196, 0.25);
+        }
+
+        .secondary-btn {
+            border: 1px solid #c5d7ee;
+            background: #f5f9ff;
+            color: #245da4;
+        }
+
+        .secondary-btn:hover {
+            background: #e8f1ff;
+            border-color: #8eb5e9;
+        }
+
+        .upload-section {
+            margin-top: 26px;
+        }
+
+        .upload-section label {
+            display: block;
+            margin-bottom: 10px;
+            color: #29496f;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .upload-section input {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d0dbea;
+            border-radius: 11px;
+            background: #fbfcff;
+            color: #526982;
+            font: inherit;
+        }
+
+        .status {
+            min-height: 20px;
+            margin: 18px 0 0;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .footer-note {
+            margin-top: 22px;
+            padding: 15px;
+            background: #f1faf5;
+            border: 1px solid #d8eee1;
+            border-radius: 12px;
+            color: #32714f;
+            font-size: 13px;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .topbar {
+                padding: 17px 5%;
+                gap: 12px;
+            }
+
+            .brand {
+                font-size: 19px;
+            }
+
+            .page {
+                margin: 25px auto;
+                padding: 0 15px 30px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .scanner-box {
+                min-height: 240px;
+            }
+
+            .notice {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="brand">Secure UPI</div>
+        <a class="back-link" href="homepage.html">← Back to Home</a>
+    </header>
+
+    <main class="page">
+
+        <!-- Work in progress notice -->
+        <section class="notice">
+            <div class="notice-icon">⚠️</div>
+            <div>
+                <strong>WORK IN PROGRESS</strong>
+                <p>
+                    Not a typical QR transaction. This feature currently
+                    demonstrates QR scanning in a simulated UPI environment.
+                    It does not include a real payment gateway or actual
+                    money transfers.
+                </p>
+            </div>
+        </section>
+
+        <section class="heading">
+            <h1>Pay with Scan</h1>
+            <p>
+                Scan a QR code or upload an image to test the scanning feature.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>QR Code Scanner</h2>
+            <p class="subtext">
+                Use your camera to scan a demo QR code, or upload an existing
+                QR image from your laptop.
+            </p>
+
+            <div class="scanner-box">
+                <div id="scanPlaceholder">
+                    <div class="scan-icon">▦</div>
+                    <div class="scanner-hint">
+                        Your scanner will appear here.<br>
+                        Start the camera or upload a QR image below.
+                    </div>
+                </div>
+
+                <div id="reader"></div>
+            </div>
+
+            <button type="button" class="button primary-btn" id="startScanner">
+                Start Camera Scanner
+            </button>
+
+            <div class="upload-section">
+                <label for="qrFile">Upload QR Code Image</label>
+                <input type="file" id="qrFile" accept="image/*">
+            </div>
+
+            <p id="scanMessage" class="status"
+               role="status" aria-live="polite"></p>
+
+            <div class="footer-note">
+                🔒 Academic demonstration only. Scanning a QR code does not
+                initiate or authorize a real UPI payment.
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const scanMessage = document.getElementById("scanMessage");
+        const scanPlaceholder = document.getElementById("scanPlaceholder");
+        const startButton = document.getElementById("startScanner");
+        const qrFile = document.getElementById("qrFile");
+
+        let scanner = null;
+        let scanning = false;
+
+        function showMessage(message) {
+            scanMessage.textContent = message;
+        }
+
+        function extractAccount(decodedText) {
+            const value = decodedText.trim();
+
+            // QR contains a 12-digit account number.
+            if (/^\d{12}$/.test(value)) {
+                return value;
+            }
+
+            // QR contains a URL with ?account= followed by the account number.
+            try {
+                const parsed = new URL(value);
+                const account = parsed.searchParams.get("account");
+
+                if (account && /^\d{12}$/.test(account)) {
+                    return account;
+                }
+            } catch (_) {
+                // The QR data is not a URL.
+            }
+
+            // QR contains JSON with an accountNumber or account property.
+            try {
+                const data = JSON.parse(value);
+                const account = data.accountNumber || data.account;
+
+                if (typeof account === "string" &&
+                    /^\d{12}$/.test(account)) {
+                    return account;
+                }
+            } catch (_) {
+                // The QR data is not JSON.
+            }
+
+            return null;
+        }
+
+        async function stopScanner() {
+            if (scanner && scanning) {
+                try {
+                    await scanner.stop();
+                } catch (error) {
+                    console.warn("Unable to stop scanner:", error);
+                }
+
+                scanning = false;
+            }
+        }
+
+        function onQrSuccess(decodedText) {
+            const account = extractAccount(decodedText);
+
+            if (!account) {
+                showMessage(
+                    "QR detected, but its format is not recognized. " +
+                    "This demo supports a 12-digit account number, " +
+                    "a URL with an account parameter, or compatible JSON."
+                );
+                return;
+            }
+
+            showMessage(
+                "QR scanned successfully! Demo recipient account: " +
+                account +
+                ". No payment has been made."
+            );
+
+            stopScanner();
+        }
+
+        // Start camera scanner.
+        startButton.addEventListener("click", async () => {
+            if (typeof Html5Qrcode === "undefined") {
+                showMessage(
+                    "Scanner library unavailable. Check your internet " +
+                    "connection and reload the page."
+                );
+                return;
+            }
+
+            if (!window.isSecureContext) {
+                showMessage(
+                    "Camera access requires HTTPS or localhost. " +
+                    "Open this page through a local web server."
+                );
+                return;
+            }
+
+            if (scanning) return;
+
+            try {
+                scanner = new Html5Qrcode("reader");
+                scanPlaceholder.style.display = "none";
+                startButton.disabled = true;
+                startButton.textContent = "Starting Camera...";
+
+                await scanner.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 220, height: 220 }
+                    },
+                    onQrSuccess,
+                    () => {}
+                );
+
+                scanning = true;
+                startButton.textContent = "Camera Scanner Active";
+                showMessage(
+                    "Camera is active. Point it at a demo QR code."
+                );
+            } catch (error) {
+                console.error(error);
+
+                scanPlaceholder.style.display = "block";
+                startButton.disabled = false;
+                startButton.textContent = "Start Camera Scanner";
+
+                showMessage(
+                    "Camera unavailable. Allow camera access or upload " +
+                    "a QR image instead."
+                );
+            }
+        });
+
+        // Scan a QR code from an uploaded image.
+        qrFile.addEventListener("change", async () => {
+            const file = qrFile.files[0];
+
+            if (!file) return;
+
+            if (typeof Html5Qrcode === "undefined") {
+                showMessage(
+                    "Scanner library unavailable. Check your internet connection."
+                );
+                return;
+            }
+
+            try {
+                showMessage("Reading QR image...");
+
+                const fileScanner = new Html5Qrcode("reader");
+                const decodedText = await fileScanner.scanFile(file, true);
+
+                onQrSuccess(decodedText);
+            } catch (error) {
+                console.error(error);
+
+                showMessage(
+                    "Could not read a QR code from this image. " +
+                    "Try a clearer image containing a QR code."
+                );
+            } finally {
+                qrFile.value = "";
+            }
+        });
+
+        // Redirect to login if the user has not logged in.
+        if (!sessionStorage.getItem("loggedInUsername")) {
+            window.location.href = "login.html";
+        }
+    </script>
+
+</body>
+</html>
