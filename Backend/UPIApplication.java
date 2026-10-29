@@ -9,6 +9,11 @@ public class UPIApplication {
 
         tcpThread.start();
 
+        Thread udpThread = new Thread(
+                () -> UDPServer.start());
+
+        udpThread.start();
+
         UPIHttpServer.start(paymentService);
     }
 }

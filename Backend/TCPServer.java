@@ -121,9 +121,23 @@ public class TCPServer {
                         amount
                     );
 
-                    output.println(response);
+                    if (!response.startsWith("SUCCESS|")) {
+                        output.println(response);
+                        System.out.println("Payment response: " + response);
+                    } else {
+                        output.println(response);
+                    }
+                    
+                    String status = response.startsWith("SUCCESS|")
+                            ? "PAYMENT_COMPLETED"
+                            : "PAYMENT_FAILED";
 
-                    System.out.println("Payment response: " + response);
+                    Thread notificationThread = new Thread(
+                            () -> UDPClient.sendNotification(transactionId, status)
+                    );
+
+                    notificationThread.setDaemon(true);
+                    notificationThread.start();
 
                     paymentService.displayBalances();
                     paymentService.displayTransactionHistory();

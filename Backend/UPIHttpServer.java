@@ -51,7 +51,9 @@ public class UPIHttpServer {
                     initialBalance = new BigDecimal(balanceText);
                 }
 
-                String result = paymentService.registerUser(username, password, paymentPassword, phone, initialBalance);
+
+                String result = paymentService.registerUser(
+                        username, password, paymentPassword, phone, initialBalance);
 
                 if (result.startsWith("SUCCESS|")) {
                     String accountNumber = result.split("\\|")[1];
@@ -268,7 +270,11 @@ public class UPIHttpServer {
                 String transactionId = "TXN-" + UUID.randomUUID().toString().replace("-", "").substring(0, 16).toUpperCase();
 
                 // Process payment (Atomic SQL Debit, Credit & Global Ledger Insert)
-                String result = paymentService.processPayment(transactionId, sender, receiver, amount);
+                String result = TCPClient.sendPayment(
+                        transactionId,
+                        sender,
+                        receiver,
+                        amount);
 
                 if (result.startsWith("SUCCESS|")) {
                     sendResponse(exchange, 200,

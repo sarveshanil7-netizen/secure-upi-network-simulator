@@ -1,43 +1,59 @@
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.nio.charset.StandardCharsets;
 
 public class UDPServer {
+
     public static void main(String[] args) {
+        start();
+    }
+
+    public static void start() {
+
         try (DatagramSocket serverSocket = new DatagramSocket(5002)) {
+
             System.out.println("UDP Server started on port 5002.");
-            System.out.println("Waiting for notifications...");
+            System.out.println("Waiting for payment notifications...");
 
-            byte[] buffer = new byte[1024];
+            while (true) {
 
-            DatagramPacket packet =
-                new DatagramPacket(buffer, buffer.length);
+                byte[] buffer = new byte[1024];
 
-            serverSocket.receive(packet);
+                DatagramPacket packet =
+                        new DatagramPacket(buffer, buffer.length);
 
-            String message = new String(
-                packet.getData(), 0, packet.getLength()
-            );
+                serverSocket.receive(packet);
 
-            System.out.println("Notification received: " + message);
-            System.out.println("Sender IP: " + packet.getAddress());
-            System.out.println("Sender port: " + packet.getPort());
+                String message = new String(
+                        packet.getData(),
+                        0,
+                        packet.getLength(),
+                        StandardCharsets.UTF_8
+                );
 
-            String reply = "Notification received by UDP server";
-            byte[] replyData = reply.getBytes();
+                System.out.println("\nNotification received: " + message);
+                System.out.println("Sender IP: " + packet.getAddress());
+                System.out.println("Sender port: " + packet.getPort());
 
-            DatagramPacket response = new DatagramPacket(
-                replyData,
-                replyData.length,
-                packet.getAddress(),
-                packet.getPort()
-            );
+                String reply = "ACK|" + message;
 
-            serverSocket.send(response);
-            System.out.println("Acknowledgement sent.");
+                byte[] replyData =
+                        reply.getBytes(StandardCharsets.UTF_8);
+
+                DatagramPacket response = new DatagramPacket(
+                        replyData,
+                        replyData.length,
+                        packet.getAddress(),
+                        packet.getPort()
+                );
+
+                serverSocket.send(response);
+
+                System.out.println("Acknowledgement sent.");
+            }
 
         } catch (Exception e) {
-            System.out.println("Server error: " + e.getMessage());
+            System.out.println("UDP Server error: " + e.getMessage());
         }
     }
 }
